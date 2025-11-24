@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Baseball Card Collection Tracker</title>
+    <title>Baseball Card Collection</title>
     <style>
         * {
             margin: 0;
@@ -29,6 +29,23 @@
             margin-bottom: 30px;
             font-size: 2.5em;
             text-shadow: 2px 2px 4px rgba(0,0,0,0.2);
+        }
+
+        .loading {
+            text-align: center;
+            color: white;
+            font-size: 1.2em;
+            margin-top: 50px;
+        }
+
+        .error {
+            background: #ff6b6b;
+            color: white;
+            padding: 20px;
+            border-radius: 10px;
+            text-align: center;
+            margin: 20px auto;
+            max-width: 600px;
         }
 
         .stats-bar {
@@ -59,95 +76,18 @@
             margin-top: 5px;
         }
 
-        .main-content {
-            display: grid;
-            grid-template-columns: 350px 1fr;
-            gap: 20px;
-        }
-
-        @media (max-width: 968px) {
-            .main-content {
-                grid-template-columns: 1fr;
-            }
-        }
-
-        .form-section, .collection-section {
+        .collection-section {
             background: white;
             padding: 25px;
             border-radius: 15px;
             box-shadow: 0 10px 30px rgba(0,0,0,0.2);
         }
 
-        .form-section h2, .collection-section h2 {
+        .collection-section h2 {
             margin-bottom: 20px;
             color: #333;
             border-bottom: 2px solid #667eea;
             padding-bottom: 10px;
-        }
-
-        .form-group {
-            margin-bottom: 15px;
-        }
-
-        label {
-            display: block;
-            margin-bottom: 5px;
-            color: #555;
-            font-weight: 500;
-        }
-
-        input, select, textarea {
-            width: 100%;
-            padding: 10px;
-            border: 2px solid #e0e0e0;
-            border-radius: 8px;
-            font-size: 14px;
-            transition: border-color 0.3s;
-        }
-
-        input:focus, select:focus, textarea:focus {
-            outline: none;
-            border-color: #667eea;
-        }
-
-        .checkbox-group {
-            display: flex;
-            gap: 15px;
-            margin-top: 5px;
-        }
-
-        .checkbox-group label {
-            display: flex;
-            align-items: center;
-            margin-bottom: 0;
-            font-weight: normal;
-        }
-
-        .checkbox-group input[type="checkbox"] {
-            width: auto;
-            margin-right: 5px;
-        }
-
-        button {
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            color: white;
-            border: none;
-            padding: 12px 24px;
-            border-radius: 8px;
-            cursor: pointer;
-            font-size: 16px;
-            font-weight: 600;
-            transition: transform 0.2s;
-            width: 100%;
-        }
-
-        button:hover {
-            transform: translateY(-2px);
-        }
-
-        button.cancel-btn {
-            background: #999;
-            margin-top: 10px;
         }
 
         .filters {
@@ -160,6 +100,15 @@
         .filter-input {
             flex: 1;
             min-width: 200px;
+            padding: 10px;
+            border: 2px solid #e0e0e0;
+            border-radius: 8px;
+            font-size: 14px;
+        }
+
+        .filter-input:focus {
+            outline: none;
+            border-color: #667eea;
         }
 
         .cards-grid {
@@ -236,167 +185,61 @@
             margin: 3px 0;
         }
 
-        .card-actions {
-            display: flex;
-            gap: 10px;
-            margin-top: 10px;
-        }
-
-        .btn-small {
-            padding: 5px 10px;
-            font-size: 12px;
-            border-radius: 5px;
-            cursor: pointer;
-            border: none;
-            transition: opacity 0.2s;
-        }
-
-        .btn-edit {
-            background: #667eea;
-            color: white;
-        }
-
-        .btn-delete {
-            background: #dc3545;
-            color: white;
-        }
-
-        .btn-small:hover {
-            opacity: 0.8;
-        }
-
         .empty-state {
             text-align: center;
             padding: 40px;
             color: #999;
         }
 
-        .export-import {
+        .update-info {
+            background: #f0f0f0;
+            padding: 15px;
+            border-radius: 10px;
             margin-top: 20px;
-            padding-top: 20px;
-            border-top: 2px solid #e0e0e0;
+            text-align: center;
+            font-size: 0.9em;
+            color: #666;
         }
 
-        .export-import button {
-            margin-bottom: 10px;
-        }
-
-        #importFile {
-            display: none;
+        .last-updated {
+            color: #667eea;
+            font-weight: bold;
         }
     </style>
 </head>
 <body>
     <div class="container">
-        <h1>⚾ Baseball Card Collection Tracker</h1>
+        <h1>⚾ Baseball Card Collection</h1>
         
-        <div class="stats-bar">
-            <div class="stat">
-                <div class="stat-number" id="totalCards">0</div>
-                <div class="stat-label">Total Cards</div>
-            </div>
-            <div class="stat">
-                <div class="stat-number" id="uniquePlayers">0</div>
-                <div class="stat-label">Unique Players</div>
-            </div>
-            <div class="stat">
-                <div class="stat-number" id="totalAutos">0</div>
-                <div class="stat-label">Autographs</div>
-            </div>
-            <div class="stat">
-                <div class="stat-number" id="totalRelics">0</div>
-                <div class="stat-label">Relics</div>
-            </div>
-            <div class="stat">
-                <div class="stat-number" id="totalValue">$0</div>
-                <div class="stat-label">Est. Total Value</div>
-            </div>
-        </div>
-
-        <div class="main-content">
-            <div class="form-section">
-                <h2 id="formTitle">Add New Card</h2>
-                <form id="cardForm">
-                    <input type="hidden" id="editIndex" value="">
-                    
-                    <div class="form-group">
-                        <label for="playerName">Player Name *</label>
-                        <input type="text" id="playerName" required placeholder="e.g., Aaron Judge">
-                    </div>
-
-                    <div class="form-group">
-                        <label for="year">Year *</label>
-                        <input type="number" id="year" required placeholder="e.g., 2024" min="1900" max="2099">
-                    </div>
-
-                    <div class="form-group">
-                        <label for="product">Product/Set *</label>
-                        <input type="text" id="product" required placeholder="e.g., Topps Chrome">
-                    </div>
-
-                    <div class="form-group">
-                        <label for="cardNumber">Card Number</label>
-                        <input type="text" id="cardNumber" placeholder="e.g., 150 or RC-25">
-                    </div>
-
-                    <div class="form-group">
-                        <label>Card Type</label>
-                        <div class="checkbox-group">
-                            <label>
-                                <input type="checkbox" id="isAuto">
-                                <span>Autograph</span>
-                            </label>
-                            <label>
-                                <input type="checkbox" id="isRelic">
-                                <span>Relic/Patch</span>
-                            </label>
-                        </div>
-                    </div>
-
-                    <div class="form-group">
-                        <label for="parallel">Parallel/Variant</label>
-                        <input type="text" id="parallel" placeholder="e.g., Refractor, Gold, Sapphire">
-                    </div>
-
-                    <div class="form-group">
-                        <label for="serialNumber">Serial Numbering</label>
-                        <input type="text" id="serialNumber" placeholder="e.g., 25/99 or 1/1">
-                    </div>
-
-                    <div class="form-group">
-                        <label for="team">Team</label>
-                        <input type="text" id="team" placeholder="e.g., Yankees">
-                    </div>
-
-                    <div class="form-group">
-                        <label for="grade">Grade</label>
-                        <input type="text" id="grade" placeholder="e.g., PSA 10, BGS 9.5, Raw">
-                    </div>
-
-                    <div class="form-group">
-                        <label for="value">Estimated Value ($)</label>
-                        <input type="number" id="value" step="0.01" placeholder="0.00">
-                    </div>
-
-                    <div class="form-group">
-                        <label for="notes">Notes</label>
-                        <textarea id="notes" rows="3" placeholder="Any additional notes..."></textarea>
-                    </div>
-
-                    <button type="submit" id="submitBtn">Add Card</button>
-                    <button type="button" class="cancel-btn" id="cancelBtn" style="display: none;">Cancel Edit</button>
-                </form>
-
-                <div class="export-import">
-                    <h3 style="margin-bottom: 10px; color: #333;">Data Management</h3>
-                    <button onclick="exportData()">📥 Export Collection</button>
-                    <button onclick="document.getElementById('importFile').click()">📤 Import Collection</button>
-                    <input type="file" id="importFile" accept=".json" onchange="importData(event)">
+        <div id="loading" class="loading">Loading collection...</div>
+        <div id="error" class="error" style="display: none;"></div>
+        
+        <div id="content" style="display: none;">
+            <div class="stats-bar">
+                <div class="stat">
+                    <div class="stat-number" id="totalCards">0</div>
+                    <div class="stat-label">Total Cards</div>
+                </div>
+                <div class="stat">
+                    <div class="stat-number" id="uniquePlayers">0</div>
+                    <div class="stat-label">Unique Players</div>
+                </div>
+                <div class="stat">
+                    <div class="stat-number" id="totalAutos">0</div>
+                    <div class="stat-label">Autographs</div>
+                </div>
+                <div class="stat">
+                    <div class="stat-number" id="totalRelics">0</div>
+                    <div class="stat-label">Relics</div>
+                </div>
+                <div class="stat">
+                    <div class="stat-number" id="totalValue">$0</div>
+                    <div class="stat-label">Est. Total Value</div>
                 </div>
             </div>
 
             <div class="collection-section">
-                <h2>Your Collection</h2>
+                <h2>Collection</h2>
                 
                 <div class="filters">
                     <input type="text" id="searchFilter" placeholder="Search players, teams, years, products..." class="filter-input">
@@ -421,10 +264,12 @@
                     </select>
                 </div>
 
-                <div id="cardsList" class="cards-grid">
-                    <div class="empty-state">
-                        <p>No cards in your collection yet.</p>
-                        <p>Add your first card using the form!</p>
+                <div id="cardsList" class="cards-grid"></div>
+                
+                <div class="update-info">
+                    <div class="last-updated" id="lastUpdated"></div>
+                    <div style="margin-top: 10px;">
+                        This collection is read-only. To update, export your local collection and upload the JSON file to GitHub.
                     </div>
                 </div>
             </div>
@@ -432,15 +277,7 @@
     </div>
 
     <script>
-        // Initialize collection from localStorage
-        let collection = JSON.parse(localStorage.getItem('baseballCards')) || [];
-
-        // Form elements
-        const form = document.getElementById('cardForm');
-        const formTitle = document.getElementById('formTitle');
-        const submitBtn = document.getElementById('submitBtn');
-        const cancelBtn = document.getElementById('cancelBtn');
-        const editIndex = document.getElementById('editIndex');
+        let collection = [];
 
         // Filter elements
         const searchFilter = document.getElementById('searchFilter');
@@ -449,89 +286,46 @@
         const sortBy = document.getElementById('sortBy');
 
         // Add event listeners
-        form.addEventListener('submit', handleSubmit);
-        cancelBtn.addEventListener('click', cancelEdit);
         searchFilter.addEventListener('input', renderCards);
         productFilter.addEventListener('change', renderCards);
         typeFilter.addEventListener('change', renderCards);
         sortBy.addEventListener('change', renderCards);
 
-        function handleSubmit(e) {
-            e.preventDefault();
-            
-            const card = {
-                playerName: document.getElementById('playerName').value,
-                year: document.getElementById('year').value,
-                product: document.getElementById('product').value,
-                cardNumber: document.getElementById('cardNumber').value,
-                isAuto: document.getElementById('isAuto').checked,
-                isRelic: document.getElementById('isRelic').checked,
-                parallel: document.getElementById('parallel').value,
-                serialNumber: document.getElementById('serialNumber').value,
-                team: document.getElementById('team').value,
-                grade: document.getElementById('grade').value,
-                value: parseFloat(document.getElementById('value').value) || 0,
-                notes: document.getElementById('notes').value,
-                dateAdded: new Date().toISOString()
-            };
-
-            const index = editIndex.value;
-            if (index !== '') {
-                // Update existing card
-                collection[index] = card;
-            } else {
-                // Add new card
-                collection.push(card);
-            }
-
-            saveCollection();
-            form.reset();
-            cancelEdit();
-            renderCards();
-            updateStats();
-            updateProductFilter();
-        }
-
-        function editCard(index) {
-            const card = collection[index];
-            
-            document.getElementById('playerName').value = card.playerName;
-            document.getElementById('year').value = card.year;
-            document.getElementById('product').value = card.product;
-            document.getElementById('cardNumber').value = card.cardNumber;
-            document.getElementById('isAuto').checked = card.isAuto;
-            document.getElementById('isRelic').checked = card.isRelic;
-            document.getElementById('parallel').value = card.parallel;
-            document.getElementById('serialNumber').value = card.serialNumber;
-            document.getElementById('team').value = card.team;
-            document.getElementById('grade').value = card.grade;
-            document.getElementById('value').value = card.value;
-            document.getElementById('notes').value = card.notes;
-            
-            editIndex.value = index;
-            formTitle.textContent = 'Edit Card';
-            submitBtn.textContent = 'Update Card';
-            cancelBtn.style.display = 'block';
-            
-            // Scroll to form
-            document.querySelector('.form-section').scrollIntoView({ behavior: 'smooth' });
-        }
-
-        function cancelEdit() {
-            editIndex.value = '';
-            formTitle.textContent = 'Add New Card';
-            submitBtn.textContent = 'Add Card';
-            cancelBtn.style.display = 'none';
-            form.reset();
-        }
-
-        function deleteCard(index) {
-            if (confirm('Are you sure you want to delete this card?')) {
-                collection.splice(index, 1);
-                saveCollection();
-                renderCards();
+        // Load collection from collection.json
+        async function loadCollection() {
+            try {
+                // Try to load from collection.json in the same directory
+                const response = await fetch('./collection.json', {
+                    cache: 'no-cache' // Always get fresh data
+                });
+                
+                if (!response.ok) {
+                    throw new Error('Collection file not found');
+                }
+                
+                collection = await response.json();
+                
+                // Hide loading, show content
+                document.getElementById('loading').style.display = 'none';
+                document.getElementById('content').style.display = 'block';
+                
+                // Set last updated time
+                const now = new Date().toLocaleString();
+                document.getElementById('lastUpdated').textContent = `Collection loaded at: ${now}`;
+                
+                // Initialize the display
                 updateStats();
                 updateProductFilter();
+                renderCards();
+                
+            } catch (error) {
+                document.getElementById('loading').style.display = 'none';
+                document.getElementById('error').style.display = 'block';
+                document.getElementById('error').innerHTML = `
+                    <h3>Unable to load collection</h3>
+                    <p>${error.message}</p>
+                    <p style="margin-top: 10px;">Make sure collection.json is uploaded to your GitHub repository.</p>
+                `;
             }
         }
 
@@ -547,7 +341,7 @@
 
             filteredCards = filteredCards.filter(card => {
                 const matchesSearch = card.playerName.toLowerCase().includes(searchTerm) ||
-                                     card.team.toLowerCase().includes(searchTerm) ||
+                                     (card.team && card.team.toLowerCase().includes(searchTerm)) ||
                                      card.product.toLowerCase().includes(searchTerm) ||
                                      card.year.toString().includes(searchTerm);
                 const matchesProduct = !productTerm || card.product === productTerm;
@@ -575,10 +369,10 @@
                     case 'year-old':
                         return a.year - b.year;
                     case 'oldest':
-                        return new Date(a.dateAdded) - new Date(b.dateAdded);
+                        return new Date(a.dateAdded || 0) - new Date(b.dateAdded || 0);
                     case 'newest':
                     default:
-                        return new Date(b.dateAdded) - new Date(a.dateAdded);
+                        return new Date(b.dateAdded || 0) - new Date(a.dateAdded || 0);
                 }
             });
 
@@ -591,8 +385,7 @@
                 return;
             }
 
-            container.innerHTML = filteredCards.map((card, index) => {
-                const originalIndex = collection.indexOf(card);
+            container.innerHTML = filteredCards.map((card) => {
                 const badges = [];
                 if (card.isAuto) badges.push('<span class="badge auto">AUTO</span>');
                 if (card.isRelic) badges.push('<span class="badge relic">RELIC</span>');
@@ -614,10 +407,6 @@
                             ${card.grade ? `<div class="card-detail">📊 ${card.grade}</div>` : ''}
                             ${card.value ? `<div class="card-detail">💵 $${card.value.toFixed(2)}</div>` : ''}
                             ${card.notes ? `<div class="card-detail" style="font-style: italic;">📝 ${card.notes}</div>` : ''}
-                        </div>
-                        <div class="card-actions">
-                            <button class="btn-small btn-edit" onclick="editCard(${originalIndex})">Edit</button>
-                            <button class="btn-small btn-delete" onclick="deleteCard(${originalIndex})">Delete</button>
                         </div>
                     </div>
                 `;
@@ -646,53 +435,11 @@
             });
         }
 
-        function saveCollection() {
-            localStorage.setItem('baseballCards', JSON.stringify(collection));
-        }
+        // Load collection when page loads
+        loadCollection();
 
-        function exportData() {
-            const dataStr = JSON.stringify(collection, null, 2);
-            const dataUri = 'data:application/json;charset=utf-8,'+ encodeURIComponent(dataStr);
-            const exportFileDefaultName = `baseball_cards_${new Date().toISOString().split('T')[0]}.json`;
-
-            const linkElement = document.createElement('a');
-            linkElement.setAttribute('href', dataUri);
-            linkElement.setAttribute('download', exportFileDefaultName);
-            linkElement.click();
-        }
-
-        function importData(event) {
-            const file = event.target.files[0];
-            if (!file) return;
-
-            const reader = new FileReader();
-            reader.onload = function(e) {
-                try {
-                    const importedData = JSON.parse(e.target.result);
-                    if (Array.isArray(importedData)) {
-                        if (confirm(`This will replace your current collection of ${collection.length} cards with ${importedData.length} imported cards. Continue?`)) {
-                            collection = importedData;
-                            saveCollection();
-                            renderCards();
-                            updateStats();
-                            updateProductFilter();
-                            alert('Collection imported successfully!');
-                        }
-                    } else {
-                        alert('Invalid file format. Please select a valid JSON file.');
-                    }
-                } catch (error) {
-                    alert('Error reading file. Please make sure it\'s a valid JSON file.');
-                }
-            };
-            reader.readAsText(file);
-            event.target.value = ''; // Reset file input
-        }
-
-        // Initialize the app
-        renderCards();
-        updateStats();
-        updateProductFilter();
+        // Reload collection every 30 seconds to check for updates
+        setInterval(loadCollection, 30000);
     </script>
 </body>
 </html>
